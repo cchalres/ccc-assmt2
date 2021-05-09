@@ -68,31 +68,32 @@ if __name__ == "__main__":
         points = 0
         pos_count = 0
         ngtv_count = 0
-        zero_count = 0
         try:
             build_coord_view(db, view_name, purpose)
             
             ip = "http://admin:admin@127.0.0.1:5984/"
             result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
-            for i in range(0, len(result)):
-                points += int(result[i]['value'])
-                if int(result[i]['value']) > 0:
+            for i in range(0, 10):
+                points += float(result[i]['value'])
+                if float(result[i]['value']) > 0:
                     pos_count += 1
-                elif int(result[i]['value']) < 0:
+                elif float(result[i]['value']) < 0:
                     ngtv_count += 1
-                else:
-                    zero_count += 1
             print(points)
+            print(pos_count)
+            print(ngtv_count)
+
 
         except couchdb.http.ResourceConflict:
             ip = "http://admin:admin@127.0.0.1:5984/"
             result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
-            for i in range(0, len(result)):
-                points += int(result[i]['value'])
-                if int(result[i]['value']) > 0:
+            for i in range(0, 10):
+                points += float(result[i]['value'])
+                if float(result[i]['value']) > 0:
                     pos_count += 1
-                elif int(result[i]['value']) < 0:
+                elif float(result[i]['value']) < 0:
                     ngtv_count += 1
-                else:
-                    zero_count += 1
             print(points)
+            print(pos_count)
+            print(ngtv_count)
+                
