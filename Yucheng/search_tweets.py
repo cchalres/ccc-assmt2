@@ -29,6 +29,7 @@ class searcher():
                     slep = False
                 
                 if not new_tweets:
+                    print("NO Tweet in the Database!")
                     break
 
                 if len(new_tweets) > 1:
