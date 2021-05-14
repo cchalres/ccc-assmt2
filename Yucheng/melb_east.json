@@ -1,22 +1,22 @@
 {
   "Authentication":
     {
-      "ConsumerKey": "aAniotFdNetvHCGcYomNUbzQ4",
-      "ConsumerSecret": "R6Sj9bCfN2ctdIkb1RW3sDHI1ozXef9oH9jaCtOmMN5l0n5kBX",
-      "AccessToken": "cobPNhEkGwmeAinGZaBY82WXY",
-      "AccessSecret": "82ErUA5oLJuxvKOs72uyIHSCkh1H4ESZsYbiAgC5sSRq5mZuw5"
+      "ConsumerKey": "B1YMqtkC4pUt4jrC0hwCIWM7j",
+      "ConsumerSecret": "0gd00U1TkhmU2DVGLvebE8VmefsS5YVsiYT5kWLtXlDKkmiYjy",
+      "AccessToken": "1110906258272313344-8wkeDsdpALCmASt3YcoNj2ZsPAz0DL",
+      "AccessSecret": "WlGjdg2SjIoPmC6QAk6XQY8AzCXthhsyfqFhr3LMkbyWJ"
     },
 
   "Locations":
     {
       "location": "melbourne",
-      "geo_range": "-38.217610,145.163517,30km"
+      "geo_range": "-38.219873,145.161986,30km"
     },
 
   "Database":
     {
       "tweets_db": "melb_east_tweet",
       "admin": "admin",
-      "password": "1234"
+      "password": "admin"
     }
 }
