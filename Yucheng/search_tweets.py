@@ -29,7 +29,7 @@ class searcher():
                     slep = False
                 
                 if not new_tweets:
-                    print("NO Tweet in the Database!")
+                    print("NO tweets in the Database!")
                     break
 
                 if len(new_tweets) > 1:
@@ -68,4 +68,5 @@ class searcher():
                 slep = True
             
             except tweepy.TweepError as e:
+                print("TweepyError")
                 break
