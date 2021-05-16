@@ -3,6 +3,7 @@ import json
 import sys
 import requests
 import argparse
+import pandas as pd
 
 #Here are the steps to build the mapreduce algorithms!
 #First build views and then send requests to find out the required items.
@@ -52,7 +53,7 @@ def build_view(db, view_name):
             },
         
         #No zero view
-        "point_no_zero": {
+        "point_without_zero": {
             "map": point_without_zero
             },
         
@@ -97,7 +98,7 @@ if __name__ == "__main__":
             result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/count").text)["rows"][0]['value']
             print(result)
 
-        elif purpose == "point_no_zero":
+        elif purpose == "point_without_zero":
             points = 0
             pos_count = 0
             ngtv_count = 0
@@ -118,6 +119,11 @@ if __name__ == "__main__":
             print("The total points are: " + str(points))
             print("The total number of positive tweet is: " + str(pos_count))
             print("The total number of negative tweet is: " + str(ngtv_count))
+
+            #Create a dataframe and output the data as csv file in order to do the further analysis.
+            #The output is allocate to the direction where you run this program.
+            point_no_zero = pd.DataFrame(result)
+            point_no_zero.to_csv("point_no_zero.csv")
         
         elif purpose == "point_with_zero":
             points = 0
@@ -142,6 +148,11 @@ if __name__ == "__main__":
             print("The total number of positive tweet is: " + str(pos_count))
             print("The total number of negative tweet is: " + str(ngtv_count))
             print("The total number of zero is: " + str(zero_count))
+
+            #Create a dataframe and output the data as csv file in order to do the further analysis.
+            #The output is allocate to the direction where you run this program.
+            point_have_zero = pd.DataFrame(result)
+            point_have_zero.to_csv("point_have_zero.csv")
         
         elif purpose == "text":
             text_list = []
@@ -173,7 +184,7 @@ if __name__ == "__main__":
                 result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"][0]['value']
                 print(result)
 
-            elif purpose == "point_no_zero":
+            elif purpose == "point_without_zero":
                 points = 0
                 pos_count = 0
                 ngtv_count = 0
@@ -191,6 +202,11 @@ if __name__ == "__main__":
                 print("The total points are: " + str(points))
                 print("The total number of positive tweet is: " + str(pos_count))
                 print("The total number of negative tweet is: " + str(ngtv_count))
+
+                #Create a dataframe and output the data as csv file in order to do the further analysis.
+                #The output is allocate to the direction where you run this program.
+                point_no_zero = pd.DataFrame(result)
+                point_no_zero.to_csv("point_no_zero.csv")
         
             elif purpose == "point_with_zero":
                 points = 0
@@ -200,6 +216,8 @@ if __name__ == "__main__":
                 
                 
                 result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+        
+                
 
                 for i in range(0, len(result)):
                     points += float(result[i]['value'])
@@ -214,7 +232,12 @@ if __name__ == "__main__":
                 print("The total number of positive tweet is: " + str(pos_count))
                 print("The total number of negative tweet is: " + str(ngtv_count))
                 print("The total number of zero is: " + str(zero_count))
-        
+
+                #Create a dataframe and output the data as csv file in order to do the further analysis.
+                #The output is allocate to the direction where you run this program.
+                point_have_zero = pd.DataFrame(result)
+                point_have_zero.to_csv("point_have_zero.csv")
+
             elif purpose == "text":
                 text_list = []
 
