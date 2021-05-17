@@ -203,8 +203,6 @@ if __name__ == "__main__":
                 print("The total number of positive tweet is: " + str(pos_count))
                 print("The total number of negative tweet is: " + str(ngtv_count))
 
-                #Create a dataframe and output the data as csv file in order to do the further analysis.
-                #The output is allocate to the direction where you run this program.
                 point_no_zero = pd.DataFrame(result)
                 point_no_zero.to_csv("point_no_zero.csv")
         
@@ -233,8 +231,6 @@ if __name__ == "__main__":
                 print("The total number of negative tweet is: " + str(ngtv_count))
                 print("The total number of zero is: " + str(zero_count))
 
-                #Create a dataframe and output the data as csv file in order to do the further analysis.
-                #The output is allocate to the direction where you run this program.
                 point_have_zero = pd.DataFrame(result)
                 point_have_zero.to_csv("point_have_zero.csv")
 
