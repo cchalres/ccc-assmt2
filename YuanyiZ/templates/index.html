@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>COMP90024 Ass2</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}" />
+    
+</head>
+<body>
+    <!-- <script src="{{url_for('static',filename='main.js')}}"></script> -->
+    <h1>COMP90024 Test</h1>
+    <!-- <p>{{content}}</p>  -->
+    <!-- {% for x in range(10)%}
+      {% if x % 2 == 1%}
+        <p>{{x}}</p>
+      {%endif%}
+    {%endfor%}   -->
+    
+    <script type="text/javascript">
+    var map;
+    let infowindow;
+    var circles=[];
+    const citymap = {
+      CBD: {
+        name: "CBD",
+        total: 21304,
+        percent: 14.5,
+        center: { lat: -37.785048, lng: 144.950054 },
+      },
+      WestMel: {
+        name: "West Melbourne",
+        total: 324,
+        percent:25.1,
+        center: { lat: -37.601875, lng: 145.273464 },
+      },
+      EastMel: {
+        name: "East Melbourne",
+        total: 759,
+        percent:29.3,
+        center: { lat: -37.954707, lng: 145.528209 },
+      },
+    };
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -37.8136, lng: 144.9631 },
+        zoom: 10,
+      });
+    
+      infoWindow = new google.maps.InfoWindow();
+      infoWindow.setContent("contentString");
+      infoWindow.setPosition(-37.773719015000005,144.986803921);
+      // infoWindow.open(map);
+
+
+       // Create the DIV to hold the control and call the CenterControl()
+      // constructor passing in this DIV.
+      const showTwitter = document.createElement("div");
+      CenterControl(showTwitter, map,"showTwitter");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(showTwitter);
+
+      const closeTwiiter = document.createElement("div");
+      CenterControl(closeTwiiter, map,"hideTwitter");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(closeTwiiter);
+
+
+      var coordinateSet = '{{content}}'
+      var user = JSON.parse('{{content | tojson | safe}}')
+      // alert(JSON.stringify(user[1]['geometry']['coordinates'][0][0][1], null, 4))
+
+      for(j=0; j<user.length;j++){
+        var coordinatesSet1=[];
+        for(i=0; i<user[j]['geometry']['coordinates'][0][0].length; i++){
+          coordinatesSet1.push({ lat: user[j]['geometry']['coordinates'][0][0][i][1], lng: user[j]['geometry']['coordinates'][0][0][i][0]})
+          if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.18){
+            color="#FF0000"
+          }
+          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.15){
+            color="#ff5e00"
+          }
+          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.12){
+            color="#ffa200"
+          }
+          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.09){
+            color="#ffd900"
+          }
+          else{
+            color="#FFFF99"
+          }
+        }
+        const testPolygon = new google.maps.Polygon({
+          id: user[j]['properties']['sa2_code16'],
+          name: user[j]['properties']['sa2_name16'],
+          lifeSatisfaction: user[j]['properties']['life_satisfaction_pc_0_to_60_synth'],
+          paths: coordinatesSet1,
+          strokeColor: "#FFFFFF",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: color,
+          fillOpacity: 0.8,
+        });
+        testPolygon.setMap(map);
+
+        testPolygon.addListener("click",(mapsMouseEvent) => {
+          if(testPolygon.lifeSatisfaction==null){
+            var satisf= "No Response"
+          }
+          else{
+            var satisf = testPolygon.lifeSatisfaction.toFixed(4)
+          }
+          // Close the current InfoWindow.
+          infoWindow.close();
+          // Create a new InfoWindow.
+          infoWindow = new google.maps.InfoWindow({
+            position: mapsMouseEvent.latLng,
+          });
+          infoWindow.setContent(
+            '<div class="infoWin" id="cookiesPopup">' +
+              '<h3>' + testPolygon.name + '</h3>' +
+              '<div><b> Life Satisfaction Percentage: </b></br>' +  satisf + '</br>' +
+                '<b>Clicked Location: </b></br>' + 
+                'lat: ' + mapsMouseEvent.latLng.lat().toFixed(6) + '</br>' +
+                'lng: ' + mapsMouseEvent.latLng.lng().toFixed(6) + '</br>' +
+              '</div>' +
+            '</div>' +
+            '</div>' 
+            // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+          );
+          infoWindow.open(map);
+        });
+        testPolygon.addListener("mouseover",mouseInToRegion)
+        testPolygon.addListener("mouseout",mouseOutOfRegion)
+      }
+
+      const legend = document.getElementById("legend");
+      var styles={
+        1:{range:">=0.18",color:"#FF0000",attitude:"High satisfied"},
+        2:{range:"0.18> & >=0.15",color:"#ff5e00",attitude:"Relatively satisfied"},
+        3:{range:"0.15> & >=0.12",color:"#ffa200",attitude:"Generally satisfied"},
+        4:{range:"0.12> & >=0.09",color:"#ffd900",attitude:"Not satisfied"},
+        5:{range:"null",color:"#FFFF99",attitude:"No response"}};
+      for (var style in styles) {
+        var type = styles[style]
+        var range = type.range;
+        var color = type.color;
+        var attitude = type.attitude
+        var div = document.createElement('div');
+        div.innerHTML = '<div class="legend1" style="background: ' + color + ' ">'+ attitude + '</div> ' + '<h3>' + range + '</h3>';
+        legend.appendChild(div);
+      }
+      var div = document.createElement('div');
+      legend.appendChild(div);
+      map.controls[google.maps.ControlPosition.TOP_RIGHT].push(legend);
+
+      for (const city in citymap) {
+        // Add the circle for this city to the map.
+        const cityCircle = new google.maps.Circle({
+          name: citymap[city].name,
+          total: citymap[city].total,
+          percent: citymap[city].percent,
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FF0000",
+          fillOpacity: 0.35,
+          map,
+          center: citymap[city].center,
+          radius: 10000
+        });
+
+        cityCircle.addListener("click",(mapsMouseEvent) => {
+          // Close the current InfoWindow.
+          infoWindow.close();
+          // Create a new InfoWindow.
+          infoWindow = new google.maps.InfoWindow({
+            position: mapsMouseEvent.latLng,
+          });
+          infoWindow.setContent(
+            '<div class="infoWin" id="cookiesPopup">' +
+              '<h3>' + cityCircle.name + '</h3>' +
+              '<div><b> Twitter Data Analysis: </b></br>' +  
+                'Tweets Total: '+ cityCircle.total + '</br>' +
+                'Percent: '+ cityCircle.percent + '</br>' +
+                '<b>Center Location: </b></br>' + 
+                'lat: ' + cityCircle.center.lat() + '</br>' +
+                'lng: ' + cityCircle.center.lng() + '</br>' +
+                'Radius: ' + cityCircle.radius/1000 + 'km</br>' +
+              '</div>' +
+            '</div>' 
+            // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+          );
+          infoWindow.open(map);
+        });
+        circles.push(cityCircle)
+      }
+    }
+
+        function isInfoWindowOpen(infoWindow){
+          var map = infoWindow.getMap();
+          return (map !== null && typeof map !== "undefined");
+        }
+
+
+        function mouseInToRegion(){
+          this.setOptions({fillOpacity: 0.3})
+          // this.setOptions({fillColor:"#000000"})
+
+        }
+        function mouseOutOfRegion(){
+          this.setOptions({fillOpacity: 0.8})
+          // this.setOptions({fillColor: "#FF0000"})
+        }
+
+        function showTwitter(){
+          for(var i in circles){
+            circles[i].setMap(map)
+          }
+        }
+        function hideTwitter(){
+          for(var i in circles){
+            circles[i].setMap(null)
+          }
+        }
+
+        function CenterControl(controlDiv, map,title) {
+          if(title=="hideTwitter"){
+            marginL="20px"
+            UItitle="Click to hide twitter data"
+          }
+          else{
+            marginL=""
+            UItitle="Click to show twitter data"
+          }
+          // Set CSS for the control border.
+          const controlUI = document.createElement("div");
+          controlUI.style.backgroundColor = "#fff";
+          controlUI.style.border = "2px solid #fff";
+          controlUI.style.borderRadius = "3px";
+          controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+          controlUI.style.cursor = "pointer";
+          controlUI.style.marginTop = "8px";
+          controlUI.style.marginBottom = "22px";
+          controlUI.style.marginLeft = marginL;
+          controlUI.style.textAlign = "center";
+          controlUI.title = UItitle;
+          controlDiv.appendChild(controlUI);
+          // Set CSS for the control interior.
+          const controlText = document.createElement("div");
+          controlText.style.color = "rgb(25,25,25)";
+          controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+          controlText.style.fontSize = "16px";
+          controlText.style.lineHeight = "38px";
+          controlText.style.paddingLeft = "5px";
+          controlText.style.paddingRight = "5px";
+          controlText.innerHTML = title;
+
+          controlUI.appendChild(controlText);
+          // Setup the click event listeners
+          controlUI.addEventListener("click", () => {
+            if(title=="hideTwitter"){
+              hideTwitter();
+            }
+            else{
+              showTwitter();
+            }
+          });
+        }
+
+    </script>
+    <div id="map"></div>
+    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div>
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCYLF0UhsgCckFTn19-DRbT-vVozC0vrE&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+</body>
+
+
+</html>
