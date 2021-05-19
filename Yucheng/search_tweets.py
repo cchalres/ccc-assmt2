@@ -40,10 +40,13 @@ class searcher():
                         text = json_tweet["text"]
                         testimonial = TextBlob(text)
                         score = testimonial.sentiment.polarity
+                        time = json_tweet["created_at"]
+                        language =json_tweet["lang"]
+                        location = json_tweet["geo"]
                         if id in self.database:
                             print("This tweet is already in the database!")
                         else:
-                            info = {'_id': id, 'tweet': text, "points": score, "all": json_tweet}
+                            info = {'_id': id, "time": time, "language": language, 'tweet': text, "points": score, "Geo": location, "all": json_tweet}
                             self.database.save(info)
                             total += 1
 
@@ -53,11 +56,14 @@ class searcher():
                     id = json_tweet['id_str']
                     text = json_tweet["text"]
                     testimonial = TextBlob(text)
-                    score = testimonial.sentiment.polarity                    
+                    score = testimonial.sentiment.polarity
+                    time = json_tweet["created_at"]
+                    language =json_tweet["lang"]   
+                    location = json_tweet["geo"]                 
                     if id in self.database:
                         print("This tweet is already in the database!")
                     else:
-                        info = {'_id': id, 'tweet': text, "points": score, "all": json_tweet}
+                        info = {'_id': id, "time": time, "language": language, 'tweet': text, "points": score, "Geo": location, "all": json_tweet}
                         self.database.save(info)
                         total += 1
 
