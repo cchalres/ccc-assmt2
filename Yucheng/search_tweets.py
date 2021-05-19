@@ -43,7 +43,7 @@ class searcher():
                         if id in self.database:
                             print("This tweet is already in the database!")
                         else:
-                            info = {'_id': id, 'tweet': text, "points": score}
+                            info = {'_id': id, 'tweet': text, "points": score, "all": json_tweet}
                             self.database.save(info)
                             total += 1
 
@@ -57,7 +57,7 @@ class searcher():
                     if id in self.database:
                         print("This tweet is already in the database!")
                     else:
-                        info = {'_id': id, 'tweet': text, "points": score}
+                        info = {'_id': id, 'tweet': text, "points": score, "all": json_tweet}
                         self.database.save(info)
                         total += 1
 
