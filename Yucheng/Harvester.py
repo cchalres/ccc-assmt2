@@ -7,6 +7,7 @@ from tweepy import OAuthHandler
 
 from search_tweets import searcher
 
+#Get the API's access information and token information from the config file.
 def get_credentials(config):
     with open(config) as f:
         json_config = json.load(f)
@@ -23,19 +24,7 @@ def get_credentials(config):
 
     return consumer_key, consumer_secret, access_token, access_secret
 
-def get_location(config):
-    with open(config) as f:
-        json_config = json.load(f)
-
-    try:    
-        location = json_config["Locations"]["location"]
-        
-    except Exception as e:
-        print("No location name!")
-        sys.exit(3)
-    
-    return location
-
+#Get the center and radius of the searching circle.
 def get_geo(config):
     with open(config) as f:
         json_config = json.load(f)
@@ -45,9 +34,10 @@ def get_geo(config):
         
     except Exception as e:
         print("No geo range provided!")
-        sys.exit(4)
+        sys.exit(3)
     return geo
 
+#Get the authentication and name of the database.
 def get_db(config, ip):
     with open(config) as f:
         json_config = json.load(f)
@@ -59,7 +49,8 @@ def get_db(config, ip):
         tweet_db_name = json_config["Database"]["tweets_db"]
 
         server = couchdb.Server("http://" + admin + ":" + password + "@"+ip+":5984/")
-
+        
+        #Check the duplication of database
         if tweet_db_name in server:
             print(tweet_db_name + " has already in the server!")
             tweet_db = server[tweet_db_name]
@@ -69,7 +60,7 @@ def get_db(config, ip):
         
     except Exception as e:
         print("Problems happened in the db part")
-        sys.exit(5)
+        sys.exit(4)
         
     return tweet_db
 
@@ -83,14 +74,21 @@ if __name__ == "__main__":
     config = args.config
     ip = args.server
     
+    #Input of Searcher
     consumer_key, consumer_secret, access_token, access_secret = get_credentials(config)
-    location = get_location(config)
     geo = get_geo(config)
     tweet_db= get_db(config, ip)
 
+    #Authentication
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
     api = tweepy.API(auth, wait_on_rate_limit = True, wait_on_rate_limit_notify = True)
 
-    search_api = searcher(api, tweet_db, '*', geo)
-    search_api.search()
+    #Start running the harvester
+    try:
+        search_api = searcher(api, tweet_db, '*', geo)
+        search_api.search()
+    
+    except Exception as e:
+        print("Problem happend in search!")
+        sys.exit(5)
