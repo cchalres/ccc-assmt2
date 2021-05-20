@@ -12,6 +12,7 @@ import pandas as pd
 #Also we find that most of the tweets with 0 point are non-English, because TextBlob could only
 #process English based text. However, there could be some Englished tweets get 0 point. So EMOTIONLESS!
 
+#https://docs.couchdb.org/en/latest/ddocs/views/intro.html
 
 
 
@@ -42,6 +43,26 @@ def build_view(db, view_name):
         emit(doc._id, doc.tweet)
     }'''
 
+    #Emit the timestamp of posting the tweet
+    time = '''function(doc) {
+        emit(doc._id, doc.time)
+    }'''
+
+    #Emit the language of the tweet
+    language = '''function(doc) {
+        emit(doc._id, doc.language)
+    }'''
+
+    #Emit the total number of follower of the tweet's poster
+    followers = '''function(doc) {
+        emit(doc._id, doc.all.user.followers_count)
+    }'''
+
+    #Emit the total number of friends of the tweet's poster
+    friends = '''function(doc) {
+        emit(doc._id, doc.all.user.friends_count)
+    }'''
+
     #Starting to build the view
     view = {"_id": "_design/"+view_name, 
     "views": {
@@ -65,6 +86,26 @@ def build_view(db, view_name):
         #Pure text view
         "text": {
             "map": text
+            },
+        
+        #Timestamp view
+        "time": {
+            "map": time
+            },
+        
+        #Language view
+        "language": {
+            "map": language
+            },
+
+        #Followers view
+        "followers" : {
+            "map": followers
+            },
+        
+        #Friends view
+        "friends": {
+            "map": friends
             }
         },
     "language": "javascript"
@@ -78,7 +119,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", help = "Enter the name of the view!", required = True)
     parser.add_argument("-s", "--server", help = "Enter the ip address of your Couchdb Server! Please INCLUDE USERNAME:PASSWORD and end with '/'!!!", required = True)
-    parser.add_argument("-p", "--purpose", help = "Enter your purpose, which contain: 'count', 'point_without_zero', 'point_with_zero', 'text'", required = True)
+    parser.add_argument("-p", "--purpose", help = "Enter your purpose, which contain: 'count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends'", required = True)
     parser.add_argument("-d", "--database", help = "Enter your Databse's name!", required = True)
     args = parser.parse_args()
 
@@ -166,6 +207,50 @@ if __name__ == "__main__":
             
             print(text_list)
         
+        elif purpose == "time":
+            output = {}
+
+            result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+            
+            #Extract the timestamp and store them as dictionary
+            for i in range(0, len(result)):
+                output[result[i]['key']] = result[i]['value']
+
+            print(output)
+        
+        elif purpose == "language":
+            language_dict = {}
+
+            result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+            
+            #Extract the language and store them as dictionary
+            for i in range(0, len(result)):
+                language_dict[result[i]['key']] = result[i]['value']
+            
+            print(language_dict)
+        
+        elif purpose == "followers":
+            follower_dict = {}
+            
+            result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+            #Extract the number of followers and store this number in the dictionary
+            for i in range(0, len(result)):
+                follower_dict[result[i]['key']] = result[i]['value']
+            
+            print(follower_dict)
+        
+        elif purpose == "friends":
+            friend_dict = {}
+
+            #Extract the number of friends and store this number in the dictionary
+            result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+            for i in range(0, len(result)):
+                friend_dict[result[i]['key']] = result[i]['value']
+            
+            print(friend_dict)
+
         #If there is no views could be used
         else:
             print("The view do not contain the purpose you want to achieve!")
@@ -243,6 +328,46 @@ if __name__ == "__main__":
                     text_list.append(result[i]['value'])
             
                 print(text_list)
+
+            elif purpose == "time":
+                output = {}
+
+                result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+                for i in range(0, len(result)):
+                    output[result[i]['key']] = result[i]['value']
+
+                print(output)
+        
+            elif purpose == "language":
+                language_dict = {}
+
+                result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+                for i in range(0, len(result)):
+                    language_dict[result[i]['key']] = result[i]['value']
+            
+                print(language_dict)
+        
+            elif purpose == "followers":
+                follower_dict = {}
+            
+                result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+                for i in range(0, len(result)):
+                    follower_dict[result[i]['key']] = result[i]['value']
+            
+                print(follower_dict)
+        
+            elif purpose == "friends":
+                friend_dict = {}
+
+                result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
+
+                for i in range(0, len(result)):
+                    friend_dict[result[i]['key']] = result[i]['value']
+            
+                print(friend_dict)
             
             else:
                 print("The view do not contain the purpose you want to achieve!")
