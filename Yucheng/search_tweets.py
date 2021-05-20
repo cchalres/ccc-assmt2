@@ -4,6 +4,16 @@ import couchdb
 import json
 from textblob import TextBlob
 
+#This program is used to apply the search API method. We input the API authentication, database, query, 
+#searching center and radius into this program to gain the tweets we want.
+
+#https://docs.tweepy.org/en/latest/getting_started.html
+#https://couchdb-python.readthedocs.io/en/latest/
+#https://developer.twitter.com/en/docs/twitter-api/v1/tweets/search/overview
+
+
+
+
 #Use Twitter search APIs find tweets from specific location.
 class searcher():
 
