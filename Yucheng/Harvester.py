@@ -7,6 +7,16 @@ from tweepy import OAuthHandler
 
 from search_tweets import searcher
 
+#This is the main function of the harvester. What we do here is extract the required information from the config file and run the searcher.
+#We assigned API's access and token, searching circle's center and radius, database's name in the config file.
+#That's what we do in the beginning of this program.
+#After having all the elements, we start the harvester.
+
+#https://docs.tweepy.org/en/latest/getting_started.html
+#https://couchdb-python.readthedocs.io/en/latest/
+#https://developer.twitter.com/en/docs/twitter-api/v1/tweets/search/overview
+
+
 #Get the API's access information and token information from the config file.
 def get_credentials(config):
     with open(config) as f:
