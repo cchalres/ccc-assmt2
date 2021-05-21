@@ -26,15 +26,8 @@ def build_view(db, view_name):
         }
     }'''
 
-    #Count the total number of tweets which the emotion points do not equal to 0
-    point_without_zero = '''function(doc) {
-        if(doc.points){
-            emit(doc._id, doc.points)
-        }
-    }'''
-
     #Count the total number of tweets which the emotion points include 0
-    point_with_zero = '''function(doc) {
+    point_count = '''function(doc) {
         emit(doc._id, doc.points)
     }'''
 
@@ -63,6 +56,7 @@ def build_view(db, view_name):
         emit(doc._id, doc.all.user.friends_count)
     }'''
 
+
     #Starting to build the view
     view = {"_id": "_design/"+view_name, 
     "views": {
@@ -73,14 +67,9 @@ def build_view(db, view_name):
             "map": count_total
             },
         
-        #No zero view
-        "point_without_zero": {
-            "map": point_without_zero
-            },
-        
         #Contain 0 view
-        "point_with_zero": {
-            "map": point_with_zero
+        "point_count": {
+            "map": point_count
             },
         
         #Pure text view
@@ -119,7 +108,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", help = "Enter the name of the view!", required = True)
     parser.add_argument("-s", "--server", help = "Enter the ip address of your Couchdb Server! Please INCLUDE USERNAME:PASSWORD and end with '/'!!!", required = True)
-    parser.add_argument("-p", "--purpose", help = "Enter your purpose, which contain: 'count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends'", required = True)
+    parser.add_argument("-p", "--purpose", help = "Enter your purpose, which contain: 'count', 'point_count', 'text', 'time', 'language', 'followers', 'friends'", required = True)
     parser.add_argument("-d", "--database", help = "Enter your Databse's name!", required = True)
     args = parser.parse_args()
 
@@ -138,35 +127,8 @@ if __name__ == "__main__":
             #Send request to the server and get the value of the total number
             result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/count").text)["rows"][0]['value']
             print(result)
-
-        elif purpose == "point_without_zero":
-            points = 0
-            pos_count = 0
-            ngtv_count = 0
-            zero_count = 0
-
-            
-            #Send request to the server and get the value of the points without 0
-            result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
-
-            #Calculate the total points and count the number of positive and negative tweets.
-            for i in range(0, len(result)):
-                points += float(result[i]['value'])
-                if float(result[i]['value']) > 0:
-                    pos_count += 1
-                elif float(result[i]['value']) < 0:
-                    ngtv_count += 1
-
-            print("The total points are: " + str(points))
-            print("The total number of positive tweet is: " + str(pos_count))
-            print("The total number of negative tweet is: " + str(ngtv_count))
-
-            #Create a dataframe and output the data as csv file in order to do the further analysis.
-            #The output is allocate to the direction where you run this program.
-            point_no_zero = pd.DataFrame(result)
-            point_no_zero.to_csv("point_no_zero.csv")
         
-        elif purpose == "point_with_zero":
+        elif purpose == "point_count":
             points = 0
             pos_count = 0
             ngtv_count = 0
@@ -192,8 +154,8 @@ if __name__ == "__main__":
 
             #Create a dataframe and output the data as csv file in order to do the further analysis.
             #The output is allocate to the direction where you run this program.
-            point_have_zero = pd.DataFrame(result)
-            point_have_zero.to_csv("point_have_zero.csv")
+            point_calc = pd.DataFrame(result)
+            point_calc.to_csv("point_calc.csv")
         
         elif purpose == "text":
             text_list = []
@@ -268,40 +230,15 @@ if __name__ == "__main__":
             if purpose == "count":
                 result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"][0]['value']
                 print(result)
-
-            elif purpose == "point_without_zero":
-                points = 0
-                pos_count = 0
-                ngtv_count = 0
-                zero_count = 0
-
-                result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
-                
-                for i in range(0, len(result)):
-                    points += float(result[i]['value'])
-                    if float(result[i]['value']) > 0:
-                        pos_count += 1
-                    elif float(result[i]['value']) < 0:
-                        ngtv_count += 1
-
-                print("The total points are: " + str(points))
-                print("The total number of positive tweet is: " + str(pos_count))
-                print("The total number of negative tweet is: " + str(ngtv_count))
-
-                point_no_zero = pd.DataFrame(result)
-                point_no_zero.to_csv("point_no_zero.csv")
         
-            elif purpose == "point_with_zero":
+            elif purpose == "point_count":
                 points = 0
                 pos_count = 0
                 ngtv_count = 0
                 zero_count = 0
                 
-                
                 result = json.loads(requests.get(ip + db_name + "/_design/" + view_name + "/_view/" + purpose).text)["rows"]
         
-                
-
                 for i in range(0, len(result)):
                     points += float(result[i]['value'])
                     if float(result[i]['value']) > 0:
@@ -316,8 +253,8 @@ if __name__ == "__main__":
                 print("The total number of negative tweet is: " + str(ngtv_count))
                 print("The total number of zero is: " + str(zero_count))
 
-                point_have_zero = pd.DataFrame(result)
-                point_have_zero.to_csv("point_have_zero.csv")
+                point_calc = pd.DataFrame(result)
+                point_calc.to_csv("point_calc.csv")
 
             elif purpose == "text":
                 text_list = []
