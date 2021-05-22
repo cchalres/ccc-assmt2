@@ -30,3 +30,28 @@
     .infoWin{
       text-align: center;
     }
+
+    #columnChartContainer{
+      height: 50%;
+      width: 50%;
+      position: absolute;
+      z-index: 99; 
+      top: 0;
+    }
+
+    #pieChartContainer{
+      height: 50%;
+      width: 50%;
+      right: 0px;
+      position: absolute;
+      z-index: 99; 
+      top: 0;
+    }
+
+    #CloseAurin{
+      height: 10%;
+      width: 10%;
+      bottom:0;
+      position: absolute;
+      z-index: 100; 
+    }

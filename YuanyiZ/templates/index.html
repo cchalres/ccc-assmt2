@@ -19,6 +19,7 @@
     <script type="text/javascript">
     var map;
     let infowindow;
+    var HighS=0,RelS=0,GenS=0,NotS=0,NoR=0
     var circles=[];
     const citymap = {
       CBD: {
@@ -72,21 +73,27 @@
         var coordinatesSet1=[];
         for(i=0; i<user[j]['geometry']['coordinates'][0][0].length; i++){
           coordinatesSet1.push({ lat: user[j]['geometry']['coordinates'][0][0][i][1], lng: user[j]['geometry']['coordinates'][0][0][i][0]})
-          if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.18){
-            color="#FF0000"
-          }
-          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.15){
-            color="#ff5e00"
-          }
-          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.12){
-            color="#ffa200"
-          }
-          else if(user[j]['properties']['life_satisfaction_pc_0_to_60_synth']>=0.09){
-            color="#ffd900"
-          }
-          else{
-            color="#FFFF99"
-          }
+        }
+        var localSatisf=user[j]['properties']['life_satisfaction_pc_0_to_60_synth']
+        if(localSatisf>=0.18){
+          color="#FF0000"
+          RelS++
+        }
+        else if(localSatisf>=0.15){
+          color="#ff5e00"
+          RelS++
+        }
+        else if(localSatisf>=0.12){
+          color="#ffa200"
+          GenS++
+        }
+        else if(localSatisf>=0.09){
+          color="#ffd900"
+          NotS++
+        }
+        else{
+          color="#FFFF99"
+          NoR++
         }
         const testPolygon = new google.maps.Polygon({
           id: user[j]['properties']['sa2_code16'],
@@ -267,9 +274,70 @@
         }
 
     </script>
-    <div id="map"></div>
-    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div>
 
+    <script>
+      window.onload = function () {
+
+      var chart = new CanvasJS.Chart("columnChartContainer", {
+        animationEnabled: true,
+        theme: "light2", // "light1", "light2", "dark1", "dark2"
+        title:{
+          text: "Greater Melbourne Life Satisfaction Research"
+        },
+        axisY: {
+          title: "Number of regions"
+        },
+        data: [{        
+          type: "column",  
+          showInLegend: true, 
+          legendMarkerColor: "grey",
+          legendText: " ",
+          dataPoints: [      
+            { y: HighS, label: "High satisfied" },
+            { y: RelS,  label: "Relatively satisfied" },
+            { y: GenS,  label: "Generally satisfied" },
+            { y: NotS,  label: "Not satisfied" },
+            { y: NoR,  label: "No response" },
+          ]
+        }]
+      });
+      chart.render();
+      var totalNum=HighS+RelS+GenS+NotS+NoR
+      var chart = new CanvasJS.Chart("pieChartContainer", {
+        animationEnabled: true,
+        title: {
+          text: "Greater Melbourne Life Satisfaction Research"
+        },
+        data: [{
+          type: "pie",
+          startAngle: 240,
+          yValueFormatString: "##0.00\"%\"",
+          indexLabel: "{label} {y}",
+          dataPoints: [
+            {y: HighS/totalNum*100, label: "High satisfied"},
+            {y: RelS/totalNum*100, label: "Relatively satisfied"},
+            {y: GenS/totalNum*100, label: "Generally satisfied"},
+            {y: NotS/totalNum*100, label: "Not satisfied"},
+            {y: NoR/totalNum*100, label: "No response"}
+          ]
+        }]
+      });
+      chart.render();
+      }
+      </script>
+    <div id="map"></div>
+    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div><div id="AurinData">
+    <div id="columnChartContainer" ></div>
+    <div id="pieChartContainer" ></div>
+    <button id="CloseAurin" onclick="CloseAurin()">Close Window</button>
+    <script>
+      function CloseAurin(){
+        document.getElementById("AurinData").style.visibility='hidden'
+      }
+    </script>
+    </div>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCYLF0UhsgCckFTn19-DRbT-vVozC0vrE&callback=initMap&libraries=&v=weekly"
       async
