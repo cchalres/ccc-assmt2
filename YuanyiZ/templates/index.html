@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>COMP90024 Ass2</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}" />
     
 </head>
 <body>
-    <!-- <script src="{{url_for('static',filename='main.js')}}"></script> -->
-    <h1>COMP90024 Test</h1>
     <!-- <p>{{content}}</p>  -->
     <!-- {% for x in range(10)%}
       {% if x % 2 == 1%}
@@ -22,23 +19,26 @@
     var HighS=0,RelS=0,GenS=0,NotS=0,NoR=0
     var circles=[];
     const citymap = {
-      CBD: {
-        name: "CBD",
+      MidMel: {
+        name: "Mid Melbourne",
         total: 21304,
         percent: 14.5,
-        center: { lat: -37.785048, lng: 144.950054 },
+        radius: 20000,
+        center: { lat: -37.850187, lng: 145.119610 },
       },
       WestMel: {
         name: "West Melbourne",
         total: 324,
         percent:25.1,
-        center: { lat: -37.601875, lng: 145.273464 },
+        radius: 30000,
+        center: { lat: -37.482805, lng: 144.789142 },
       },
       EastMel: {
         name: "East Melbourne",
         total: 759,
         percent:29.3,
-        center: { lat: -37.954707, lng: 145.528209 },
+        radius: 21000,
+        center: { lat: -38.219873, lng: 145.161986 },
       },
     };
 
@@ -51,8 +51,6 @@
       infoWindow = new google.maps.InfoWindow();
       infoWindow.setContent("contentString");
       infoWindow.setPosition(-37.773719015000005,144.986803921);
-      // infoWindow.open(map);
-
 
        // Create the DIV to hold the control and call the CenterControl()
       // constructor passing in this DIV.
@@ -159,6 +157,20 @@
       legend.appendChild(div);
       map.controls[google.maps.ControlPosition.TOP_RIGHT].push(legend);
 
+      const dataAnalysis = document.getElementById("dataAnalysis");
+      var buttons=[
+        '<button id="showAurin" onclick="showAurin()">Show Aurin Chart</button>',
+        '<button id="showMid" onclick="showMid()">Show Mid Chart</button>',
+        '<button id="showWest" onclick="showWest()">Show West Chart</button>',
+        '<button id="showEast" onclick="showEast()">Show East Chart</button>'
+      ]
+      for (i=0; i < buttons.length;i++){
+        var div = document.createElement('div');
+        div.innerHTML = buttons[i]
+        dataAnalysis.appendChild(div);
+      }
+      map.controls[google.maps.ControlPosition.LEFT_CENTER].push(dataAnalysis);
+
       for (const city in citymap) {
         // Add the circle for this city to the map.
         const cityCircle = new google.maps.Circle({
@@ -172,7 +184,7 @@
           fillOpacity: 0.35,
           map,
           center: citymap[city].center,
-          radius: 10000
+          radius: citymap[city].radius
         });
 
         cityCircle.addListener("click",(mapsMouseEvent) => {
@@ -276,65 +288,124 @@
     </script>
 
     <script>
-      window.onload = function () {
+        function CloseAnalysis(){
+          document.getElementById("AurinData").style.visibility='hidden'
+          document.getElementById("columnChartContainer").style.visibility='hidden'
+          document.getElementById("pieChartContainer").style.visibility='hidden'
+          document.getElementById("firstContainer").style.visibility='hidden'
+          document.getElementById("secondContainer").style.visibility='hidden'
+          document.getElementById("thirdContainer").style.visibility='hidden'
+          document.getElementById("forthContainer").style.visibility='hidden'
+          
+        }
+        function showAurin(){
+          document.getElementById("firstContainer").style.visibility='hidden'
+          document.getElementById("secondContainer").style.visibility='hidden'
+          document.getElementById("thirdContainer").style.visibility='hidden'
+          document.getElementById("forthContainer").style.visibility='hidden'
+          document.getElementById("header").innerText='Aurin Data'
+          var chart = new CanvasJS.Chart("columnChartContainer", {
+            animationEnabled: true,
+            theme: "light2", // "light1", "light2", "dark1", "dark2"
+            title:{
+              text: "Greater Melbourne Life Satisfaction Research"
+            },
+            axisY: {
+              title: "Number of regions"
+            },
+            data: [{        
+              type: "column",  
+              showInLegend: true, 
+              legendMarkerColor: "grey",
+              legendText: " ",
+              dataPoints: [      
+                { y: HighS, label: "High satisfied" },
+                { y: RelS,  label: "Relatively satisfied" },
+                { y: GenS,  label: "Generally satisfied" },
+                { y: NotS,  label: "Not satisfied" },
+                { y: NoR,  label: "No response" },
+              ]
+            }]
+          });
+          chart.render();
+          var totalNum=HighS+RelS+GenS+NotS+NoR
+          var chart = new CanvasJS.Chart("pieChartContainer", {
+            animationEnabled: true,
+            title: {
+              text: "Greater Melbourne Life Satisfaction Research"
+            },
+            data: [{
+              type: "pie",
+              startAngle: 240,
+              yValueFormatString: "##0.00\"%\"",
+              indexLabel: "{label} {y}",
+              dataPoints: [
+                {y: HighS/totalNum*100, label: "High satisfied"},
+                {y: RelS/totalNum*100, label: "Relatively satisfied"},
+                {y: GenS/totalNum*100, label: "Generally satisfied"},
+                {y: NotS/totalNum*100, label: "Not satisfied"},
+                {y: NoR/totalNum*100, label: "No response"}
+              ]
+            }]
+          });
+          chart.render();
 
-      var chart = new CanvasJS.Chart("columnChartContainer", {
-        animationEnabled: true,
-        theme: "light2", // "light1", "light2", "dark1", "dark2"
-        title:{
-          text: "Greater Melbourne Life Satisfaction Research"
-        },
-        axisY: {
-          title: "Number of regions"
-        },
-        data: [{        
-          type: "column",  
-          showInLegend: true, 
-          legendMarkerColor: "grey",
-          legendText: " ",
-          dataPoints: [      
-            { y: HighS, label: "High satisfied" },
-            { y: RelS,  label: "Relatively satisfied" },
-            { y: GenS,  label: "Generally satisfied" },
-            { y: NotS,  label: "Not satisfied" },
-            { y: NoR,  label: "No response" },
-          ]
-        }]
-      });
-      chart.render();
-      var totalNum=HighS+RelS+GenS+NotS+NoR
-      var chart = new CanvasJS.Chart("pieChartContainer", {
-        animationEnabled: true,
-        title: {
-          text: "Greater Melbourne Life Satisfaction Research"
-        },
-        data: [{
-          type: "pie",
-          startAngle: 240,
-          yValueFormatString: "##0.00\"%\"",
-          indexLabel: "{label} {y}",
-          dataPoints: [
-            {y: HighS/totalNum*100, label: "High satisfied"},
-            {y: RelS/totalNum*100, label: "Relatively satisfied"},
-            {y: GenS/totalNum*100, label: "Generally satisfied"},
-            {y: NotS/totalNum*100, label: "Not satisfied"},
-            {y: NoR/totalNum*100, label: "No response"}
-          ]
-        }]
-      });
-      chart.render();
-      }
-      </script>
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("columnChartContainer").style.visibility='visible'
+          document.getElementById("pieChartContainer").style.visibility='visible'
+        }
+        function showMid(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='Mid Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/MidCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/midWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/midTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/midTimeScore.png') }}";
+        }
+        function showWest(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='West Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/WestCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/westWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/westTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/westTimeScore.png') }}";
+        }
+        function showEast(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='East Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/EastCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/eastWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/eastTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/eastTimeScore.png') }}";
+        }
+    </script>
     <div id="map"></div>
-    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div><div id="AurinData">
+    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div>
+
+    <div id="dataAnalysis"><h2>Data Analysis</h2></div>
+
+    <div id="AurinData">
+      <h2 id="header" style="text-align: center; margin-top: 2px;"></h2>
     <div id="columnChartContainer" ></div>
     <div id="pieChartContainer" ></div>
-    <button id="CloseAurin" onclick="CloseAurin()">Close Window</button>
-    <script>
-      function CloseAurin(){
-        document.getElementById("AurinData").style.visibility='hidden'
-      }
-    </script>
+    <div id='firstContainer'><img id="firstImage"></div>
+    <div id='secondContainer'><img id="secondImage"></div>
+    <div id='thirdContainer'><img id="thirdImage"></div>
+    <div id='forthContainer'><img id="forthImage"></div>
+    <button id="CloseButton" onclick="CloseAnalysis()">Close</button>
+
     </div>
 
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>

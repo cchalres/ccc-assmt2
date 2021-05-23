@@ -2,6 +2,7 @@
        * element that contains the map. */
        #map {
         height: 100%;
+        position: relative;
       }
       
       /* Optional: Makes the sample page fill the window. */
@@ -27,31 +28,93 @@
       font-size: 14px;
     }
 
+    #dataAnalysis {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      padding: 20px;
+      margin: 30px;
+      border: 3px solid #000;
+      
+    }
+
     .infoWin{
       text-align: center;
     }
 
+    #AurinData{
+      visibility: hidden;
+      height: 80%;
+      width: 80%;
+      position: absolute;
+      z-index: 99;
+      left: 10%;
+      top: 10%;
+      background-color: #fff;
+    }
+
     #columnChartContainer{
-      height: 50%;
+      height: 47.5%;
       width: 50%;
       position: absolute;
       z-index: 99; 
-      top: 0;
+      top: 5%;
     }
 
     #pieChartContainer{
-      height: 50%;
+      height: 47.5%;
       width: 50%;
       right: 0px;
       position: absolute;
       z-index: 99; 
-      top: 0;
+      top: 5%;
     }
 
-    #CloseAurin{
-      height: 10%;
-      width: 10%;
-      bottom:0;
+    #firstContainer{
+      height: 47.5%;
+      width: 50%;
+      left: 0px;
+      position: absolute;
+      z-index: 99; 
+      top: 5%;
+    }
+
+    #secondContainer{
+      height: 47.5%;
+      width: 50%;
+      right: 0px;
+      position: absolute;
+      z-index: 99; 
+      top: 5%;
+    }
+
+    #thirdContainer{
+      height: 47.5%;
+      width: 50%;
+      left: 0px;
+      position: absolute;
+      z-index: 99; 
+      bottom: 0;
+    }
+
+    #forthContainer{
+      height: 47.5%;
+      width: 50%;
+      right: 0px;
+      position: absolute;
+      z-index: 99; 
+      bottom: 0;
+    }
+    
+    #CloseButton{
+      height: 3%;
+      width: 3%;
+      top: 10px;
+      right:10px;
       position: absolute;
       z-index: 100; 
+    }
+
+    #firstImage,#secondImage,#thirdImage,#forthImage{
+      width: 100%;
+      height: 100%;
     }
