@@ -4,6 +4,11 @@ import json
 import couchdb
 from textblob import TextBlob
 
+#In order to harvest the current post tweets, use the Stream API.
+#Because of not used in the final version, all the stored infomation here is not the same as the
+#Search API
+#https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction
+
 class stream_searcher(StreamListener):
 
     def __init__(self, tweets_db, user_db):
