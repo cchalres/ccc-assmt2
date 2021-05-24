@@ -19,8 +19,8 @@
       background: #fff;
       padding: 20px;
       margin: 30px;
-      border: 3px solid #000;
-      
+      border: 1px solid #000;
+      opacity: 0.85;
     }
 
     .legend1{
@@ -33,8 +33,8 @@
       background: #fff;
       padding: 20px;
       margin: 30px;
-      border: 3px solid #000;
-      
+      border: 1px solid #000;
+      opacity: 0.85;
     }
 
     .infoWin{
@@ -53,7 +53,7 @@
     }
 
     #columnChartContainer{
-      height: 47.5%;
+      height: 87.5%;
       width: 50%;
       position: absolute;
       z-index: 99; 
@@ -61,7 +61,7 @@
     }
 
     #pieChartContainer{
-      height: 47.5%;
+      height: 87.5%;
       width: 50%;
       right: 0px;
       position: absolute;
@@ -111,8 +111,95 @@
       top: 10px;
       right:10px;
       position: absolute;
-      z-index: 100; 
+      z-index: 9; 
     }
+
+    .close-container{
+      top: 5px;
+      right:10px;
+      position: absolute;
+      z-index: 100; 
+      margin: auto;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+    }
+    
+    .leftright{
+      height: 4px;
+      width: 50px;
+      position: absolute;
+      margin-top: 24px;
+      background-color: #F4A259;
+      border-radius: 2px;
+      transform: rotate(45deg);
+      transition: all .3s ease-in;
+    }
+    
+    .rightleft{
+      height: 4px;
+      width: 50px;
+      position: absolute;
+      margin-top: 24px;
+      background-color: #F4A259;
+      border-radius: 2px;
+      transform: rotate(-45deg);
+      transition: all .3s ease-in;
+    }
+    
+    label{
+      color: gray;
+      font-family: Helvetica, Arial, sans-serif; 
+      font-size: .6em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all .3s ease-in;
+      opacity: 0;
+    }
+    .close{
+      margin: 60px 0 0 5px;
+      position: absolute;
+    }
+    
+    .close-container:hover .leftright{
+      transform: rotate(-45deg);
+      background-color: #F25C66;
+    }
+    .close-container:hover .rightleft{
+      transform: rotate(45deg);
+      background-color: #F25C66;
+    }
+    .close-container:hover label{
+      opacity: 1;
+    }
+
+    .analyBut {
+      box-shadow:inset 0px 1px 0px 0px #ffffff;
+      background:linear-gradient(to bottom, #ededed 5%, #dfdfdf 100%);
+      background-color:#ededed;
+      border-radius:6px;
+      border:1px solid #dcdcdc;
+      display:inline-block;
+      cursor:pointer;
+      color:#777777;
+      font-family:Arial;
+      font-size:15px;
+      font-weight:bold;
+      padding:12px 24px;
+      margin-top: 10px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #ffffff;
+      width: 100%;
+    }
+    .analyBut:hover {
+      background:linear-gradient(to bottom, #dfdfdf 5%, #ededed 100%);
+      background-color:#dfdfdf;
+    }
+    .analyBut:active {
+      position:relative;
+      top:1px;
+    }
+    
 
     #firstImage,#secondImage,#thirdImage,#forthImage{
       width: 100%;

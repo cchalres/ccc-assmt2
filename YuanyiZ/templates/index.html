@@ -6,13 +6,6 @@
     
 </head>
 <body>
-    <!-- <p>{{content}}</p>  -->
-    <!-- {% for x in range(10)%}
-      {% if x % 2 == 1%}
-        <p>{{x}}</p>
-      {%endif%}
-    {%endfor%}   -->
-    
     <script type="text/javascript">
     var map;
     let infowindow;
@@ -21,23 +14,26 @@
     const citymap = {
       MidMel: {
         name: "Mid Melbourne",
-        total: 21304,
+        total: 25419,
         percent: 14.5,
         radius: 20000,
+        functionN : 'showMid',
         center: { lat: -37.850187, lng: 145.119610 },
       },
       WestMel: {
         name: "West Melbourne",
-        total: 324,
+        total: 499,
         percent:25.1,
         radius: 30000,
+        functionN : 'showWest',
         center: { lat: -37.482805, lng: 144.789142 },
       },
       EastMel: {
         name: "East Melbourne",
-        total: 759,
+        total: 4070,
         percent:29.3,
         radius: 21000,
+        functionN : 'showEast',
         center: { lat: -38.219873, lng: 145.161986 },
       },
     };
@@ -75,7 +71,7 @@
         var localSatisf=user[j]['properties']['life_satisfaction_pc_0_to_60_synth']
         if(localSatisf>=0.18){
           color="#FF0000"
-          RelS++
+          HighS++
         }
         else if(localSatisf>=0.15){
           color="#ff5e00"
@@ -159,10 +155,10 @@
 
       const dataAnalysis = document.getElementById("dataAnalysis");
       var buttons=[
-        '<button id="showAurin" onclick="showAurin()">Show Aurin Chart</button>',
-        '<button id="showMid" onclick="showMid()">Show Mid Chart</button>',
-        '<button id="showWest" onclick="showWest()">Show West Chart</button>',
-        '<button id="showEast" onclick="showEast()">Show East Chart</button>'
+        '<button id="showAurin" class="analyBut" onclick="showAurin()">Show AURIN Chart</button>',
+        '<button id="showMid" class="analyBut" onclick="showMid()">Show Mid Chart</button>',
+        '<button id="showWest" class="analyBut" onclick="showWest()">Show West Chart</button>',
+        '<button id="showEast" class="analyBut" onclick="showEast()">Show East Chart</button>'
       ]
       for (i=0; i < buttons.length;i++){
         var div = document.createElement('div');
@@ -177,6 +173,7 @@
           name: citymap[city].name,
           total: citymap[city].total,
           percent: citymap[city].percent,
+          functionN: citymap[city].functionN,
           strokeColor: "#FF0000",
           strokeOpacity: 0.8,
           strokeWeight: 2,
@@ -186,6 +183,9 @@
           center: citymap[city].center,
           radius: citymap[city].radius
         });
+
+        cityCircle.addListener("mouseover",mouseInToCircle)
+        cityCircle.addListener("mouseout",mouseOutOfCircle)
 
         cityCircle.addListener("click",(mapsMouseEvent) => {
           // Close the current InfoWindow.
@@ -198,18 +198,20 @@
             '<div class="infoWin" id="cookiesPopup">' +
               '<h3>' + cityCircle.name + '</h3>' +
               '<div><b> Twitter Data Analysis: </b></br>' +  
-                'Tweets Total: '+ cityCircle.total + '</br>' +
-                'Percent: '+ cityCircle.percent + '</br>' +
+                'Total Tweets: '+ cityCircle.total + '</br>' +
+                // 'Percent: '+ cityCircle.percent + '</br>' +
                 '<b>Center Location: </b></br>' + 
                 'lat: ' + cityCircle.center.lat() + '</br>' +
                 'lng: ' + cityCircle.center.lng() + '</br>' +
                 'Radius: ' + cityCircle.radius/1000 + 'km</br>' +
               '</div>' +
+              '<button id=" '+ cityCircle.functionN +'" class="analyBut" onclick="'+ cityCircle.functionN +'()">View Details</button>'+
             '</div>' 
             // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
           );
           infoWindow.open(map);
         });
+        cityCircle.setMap(null)
         circles.push(cityCircle)
       }
     }
@@ -222,12 +224,18 @@
 
         function mouseInToRegion(){
           this.setOptions({fillOpacity: 0.3})
-          // this.setOptions({fillColor:"#000000"})
 
         }
         function mouseOutOfRegion(){
           this.setOptions({fillOpacity: 0.8})
-          // this.setOptions({fillColor: "#FF0000"})
+        }
+
+        function mouseInToCircle(){
+          this.setOptions({fillOpacity: 0.65})
+        }
+
+        function mouseOutOfCircle(){
+          this.setOptions({fillOpacity: 0.35})
         }
 
         function showTwitter(){
@@ -289,13 +297,13 @@
 
     <script>
         function CloseAnalysis(){
-          document.getElementById("AurinData").style.visibility='hidden'
           document.getElementById("columnChartContainer").style.visibility='hidden'
           document.getElementById("pieChartContainer").style.visibility='hidden'
           document.getElementById("firstContainer").style.visibility='hidden'
           document.getElementById("secondContainer").style.visibility='hidden'
           document.getElementById("thirdContainer").style.visibility='hidden'
           document.getElementById("forthContainer").style.visibility='hidden'
+          document.getElementById("AurinData").style.visibility='hidden'
           
         }
         function showAurin(){
@@ -303,7 +311,7 @@
           document.getElementById("secondContainer").style.visibility='hidden'
           document.getElementById("thirdContainer").style.visibility='hidden'
           document.getElementById("forthContainer").style.visibility='hidden'
-          document.getElementById("header").innerText='Aurin Data'
+          document.getElementById("header").innerText='AURIN Data'
           var chart = new CanvasJS.Chart("columnChartContainer", {
             animationEnabled: true,
             theme: "light2", // "light1", "light2", "dark1", "dark2"
@@ -394,7 +402,7 @@
     <div id="map"></div>
     <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div>
 
-    <div id="dataAnalysis"><h2>Data Analysis</h2></div>
+    <div id="dataAnalysis"><h2 style="text-align: center;">Data Analysis</h2></div>
 
     <div id="AurinData">
       <h2 id="header" style="text-align: center; margin-top: 2px;"></h2>
@@ -404,7 +412,12 @@
     <div id='secondContainer'><img id="secondImage"></div>
     <div id='thirdContainer'><img id="thirdImage"></div>
     <div id='forthContainer'><img id="forthImage"></div>
-    <button id="CloseButton" onclick="CloseAnalysis()">Close</button>
+
+    <div class="close-container" onclick="CloseAnalysis()">
+      <div class="leftright"></div>
+      <div class="rightleft"></div>
+      <label class="close">close</label>
+    </div>
 
     </div>
 
