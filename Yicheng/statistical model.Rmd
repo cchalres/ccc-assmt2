@@ -1,0 +1,60 @@
+```{r}
+scoreone <- read.csv(file="df_one.csv")
+scoreone
+```
+```{r}
+summary(scoreone)
+```
+```{r}
+scoreone$group.f <- as.factor(scoreone$group)
+scoreone$language.f <- as.factor(scoreone$language)
+scoreone$hour.f <- as.factor(scoreone$hour)
+model0 <- glm(value_y~group.f+language.f+follower+friend+text.length+hour.f, family=gaussian, scoreone)
+summary(model0)
+```
+```{r}
+anova(model0, test="Chi")
+```
+```{r}
+model1 <- step(model0)
+anova(model1, test="Chi")
+```
+```{r}
+model2 <- glm(value_y~group.f+language.f+friend+text.length+hour.f, family=gaussian, scoreone)
+summary(model2)
+```
+```{r}
+model3 <- glm(value_y~group.f+language.f+friend+text.length+hour, family=gaussian, scoreone)
+anova(model3,test="Chi")
+```
+```{r}
+anova(model3,model2,test='Chi')
+```
+
+```{r}
+scorezero <- read.csv(file="df_zero.csv")
+summary(scorezero)
+```
+```{r}
+scorezero$group.f <- as.factor(scorezero$group)
+scorezero$language.f <- as.factor(scorezero$language)
+mod0 <- glm(value_y~group.f+language.f+follower+friend+text.length+hour, family=gaussian, scorezero)
+summary(mod0)
+```
+```{r}
+mod1 <- step(mod0)
+anova(mod1, test="Chi")
+```
+```{r}
+mod2 <- glm(value_y~group.f+language.f+friend+text.length+hour, family=gaussian, scorezero)
+summary(mod2)
+```
+```{r}
+mod3 <- glm(value_y~group.f+language.f+friend+text.length+factor(hour), family=gaussian, scorezero)
+anova(mod3,test="Chi")
+```
+
+```{r}
+anova(mod2,mod3,test='Chi')
+```
+
