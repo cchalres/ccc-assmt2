@@ -1,0 +1,22 @@
+{
+  "Authentication":
+    {
+      "ConsumerKey": "sRViiFRnlW0mEdd46WF6qpfvI",
+      "ConsumerSecret": "8GS1lZBAhV4F1WWGXvXFIXNRl18ma0loKaWDqHIk22hbRf2O2c",
+      "AccessToken": "1384052204579872769-SHRk0KL98NNymIznffrPUmWSCA5JKq",
+      "AccessSecret": "wjWoRogE920YGl7Rw6TQXV3cnTXHkSuPanxOBzJ1JUBRs"
+    },
+
+  "Locations":
+    {
+      "location": "melbourne",
+      "geo_range": "-37.850187,145.119610,20km"
+    },
+
+  "Database":
+    {
+      "tweets_db": "melb_mid_tweet",
+      "admin": "admin",
+      "password": "admin"
+    }
+}
