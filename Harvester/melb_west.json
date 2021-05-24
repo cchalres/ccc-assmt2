@@ -17,6 +17,6 @@
     {
       "tweets_db": "melb_west_tweet",
       "admin": "admin",
-      "password": "1234"
+      "password": "admin"
     }
 }
