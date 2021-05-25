@@ -26,3 +26,37 @@ Then the program could be run as:
 `python MapReduce.py -n <The name of the design document, no special requirement> -s <The ip address of the server, in the form of http://admin:password@ip:5984/> -p <The purpose of using mapreduce, please follow the help information> -d <The name of the database which will be visited>`  
 
 If you still have questions, please type `python MapReduce.py -h` to check the help.
+
+# Web Hosting
+The web application is based on Flask and will use NginX as our web server with the support of uWSGI.
+In this part, it is mainly forcus on configuration of web server to host the web application, the steps will be shown on the following.
+
+Step 1: Create a folder hold project and install all essential modules:
+
+`mkdir myproject`
+
+`cd myproject`
+
+`sudo apt install python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools nginx uwsgi flask wheel`
+
+Step 2: Move configuration file to corrsponding path:
+
+`mv myproject.py wsgi.py myproject.ini static templates ~/myproject`
+
+`mv myproject.service ~/etc/systemd/system`
+
+`mv myproject ~/etc/nginx/sites-available`
+
+Step 3: Restart web server:
+
+`sudo systemctl start myproject`
+
+`sudo systemctl enable myproject`
+
+`sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled`
+
+`sudo nginx -t`
+
+`sudo systemctl restart nginx`
+
+Now the web server has been restarted and with running web application made by ourselves. And it could be seen by typing the IP address into broswer.
