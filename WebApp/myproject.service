@@ -1,3 +1,4 @@
+;Team50 - Yuanyi Zhang - 1206297
 [Unit]
 Description=uWSGI instance to serve myproject
 After=network.target
