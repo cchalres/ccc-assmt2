@@ -24,7 +24,7 @@ You coudl change the configuration files (/hosts_vars/instances.yaml) which incl
 
 `./crawler.sh`   
 
-6. Deploy Web server. 
+7. Deploy Web server. 
 
 `./web.sh` 
 
