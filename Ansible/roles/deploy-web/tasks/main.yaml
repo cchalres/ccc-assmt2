@@ -1,0 +1,107 @@
+---
+- name: install virtualenv
+  become: yes
+  pip:
+    name: ["virtualenv"]
+
+- name: Creates ~myproject directory
+  file:
+    path: '{{ web_working_directory }}'
+    state: directory
+
+
+- name: virtualenv myprojectenv
+  tags: 'my project'
+  become: yes
+  shell: python3 -m virtualenv myprojectenv
+  args:
+    chdir: '{{ web_working_directory }}'
+
+
+- name: activate
+  tags: 'my project'
+  become: yes
+  shell: source myprojectenv/bin/activate
+  args:
+    chdir: '{{ web_working_directory }}'
+    executable: /bin/bash
+
+
+- name: install wheel, uwsgi flask
+  command: sudo pip install wheel
+  args:
+    chdir: '{{ web_working_directory_env}}'
+    
+  
+- name: uwsgi flask
+  command: sudo pip install uwsgi flask
+  args:
+    chdir: '{{ web_working_directory_env}}'
+  
+
+#- name: install wheel, uwsgi flask
+  #tags: 'myproject'
+  #pip:
+    #name: ["wheel", "uwsgi flask"]
+  #environment:
+    #path: /home/ubuntu/myproject/myprojectenv
+
+#- name: deactivate
+  #tags: 'my project'
+  #become: yes
+  #shell: deactivate
+  #args:
+    #chdir: '{{ web_working_directory }}'
+    #executable: /bin/bash
+
+- name: add myproject.py
+  become: yes
+  copy:
+    src: "config/myproject.py"
+    dest: /home/ubuntu/myproject/myproject.py
+
+- name: add wsgi.py
+  copy:
+    src: "config/wsgi.py"
+    dest: /home/ubuntu/myproject/wsgi.py
+
+- name: add myproject.ini
+  become: yes
+  copy:
+    src: "config/myproject.ini"
+    dest: /home/ubuntu/myproject/myproject.ini
+
+- name: add myproject.service
+  become: yes
+  copy:
+    src: "config/myproject.service"
+    dest: /etc/systemd/system/myproject.service
+
+- name: start myproject
+  become: yes
+  tags: 'myproject'
+  shell: systemctl start myproject
+
+- name: enable myproject
+  tags: 'myproject'
+  become: yes
+  shell: systemctl enable myproject
+
+
+- name: add myproject
+  become: yes
+  copy:
+    src: "config/myproject"
+    dest: /etc/nginx/sites-available/myproject
+
+- name: step1
+  become: yes
+  shell: sudo ln -sf /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+
+- name: step2
+  become: yes
+  shell: sudo nginx -t
+
+- name: step3
+  become: yes
+  shell: sudo systemctl restart nginx

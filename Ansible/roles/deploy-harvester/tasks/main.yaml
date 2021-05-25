@@ -1,0 +1,11 @@
+---
+- name: Install dependencies
+  tags: 'harvester'
+  become: yes
+  pip:
+    name: ['tweepy', 'couchdb', 'textblob', 'argparse']
+    state: latest
+
+- name: pip3 install -U textblob
+  become: yes
+  shell: pip3 install -U textblob
