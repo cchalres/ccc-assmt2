@@ -1,19 +1,33 @@
 # ccc-assmt2
 
 # Ansible
-1.	Get your Openstack Password (openrc.sh) from the dashboard of MRC.
-2.	Reset API password and copy the latest password. 
-3.	Go to the ansible directory on your computer and Deploy instances on the Nectar.
+1. Get your Openstack Password (openrc.sh) from the dashboard of MRC.
+2. Reset API password and copy the latest password. 
+3. Go to the ansible directory. 
+ 
 `cd COMP90024/ccc-assmt2/Ansible`   
+
 You coudl change the configuration files (/hosts_vars/instances.yaml) which include:  
 - number of instances
 - instance image
 - volumes size per instance etc.
 
-Then configure :  
-`python Harvester.py -c <Your configuration file> -s <Your server's ip address>`  
+4. Deploy instances on the MRC. 
 
-If you still have questions, please type `python Harvester.py -h` to check the help.
+`./mrc.sh`   
+
+5. Configure instances environments. 
+
+`./build.sh` 
+
+6. Deploy crawler. 
+
+`./crawler.sh`   
+
+6. Deploy Web server. 
+
+`./web.sh` 
+
 
 # Twitter Harvester
 If you would like to run the program locally, direct to the folder first.  
