@@ -120,7 +120,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--name", help = "Enter the name of the design document!", required = True)
     parser.add_argument("-s", "--server", help = "Enter the ip address of your Couchdb Server! Please INCLUDE USERNAME:PASSWORD and end with '/'!!!", required = True)
     parser.add_argument("-p", "--purpose", help = "Enter your purpose! Please select from the provided list", 
-                        choices=['count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends'], required = True)
+                        choices=['count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends','build'], required = True)
     parser.add_argument("-d", "--database", help = "Enter your Database's name!", required = True)
     args = parser.parse_args()
 
@@ -144,7 +144,6 @@ if __name__ == "__main__":
             points = 0
             pos_count = 0
             ngtv_count = 0
-            zero_count = 0
 
             
             #Send request to the server and get the value of the points without 0
@@ -251,6 +250,9 @@ if __name__ == "__main__":
                 friend_dict[result[i]['key']] = result[i]['value']
             
             print(friend_dict)
+        
+        elif purpose == "build":
+            print("OK, just build the view")
 
         #If there is no views could be used
         else:
@@ -369,6 +371,9 @@ if __name__ == "__main__":
                     friend_dict[result[i]['key']] = result[i]['value']
             
                 print(friend_dict)
+            
+            elif purpose == "build":
+                print("Already built!")
             
             else:
                 print("The view do not contain the purpose you want to achieve!")
