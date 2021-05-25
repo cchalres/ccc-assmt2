@@ -9,7 +9,6 @@
 
   "Locations":
     {
-      "location": "melbourne",
       "geo_range": "-37.850187,145.119610,20km"
     },
 
