@@ -1,0 +1,10 @@
+; Team50 - Yuanyi Zhang - 1206297
+server {
+    listen 80;
+    server_name server_domain_or_IP;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/ubuntu/myproject/myproject.sock;
+    }
+}

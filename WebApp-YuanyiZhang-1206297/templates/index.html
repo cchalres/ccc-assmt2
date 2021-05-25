@@ -1,0 +1,433 @@
+<!-- Team50 - Yuanyi Zhang - 1206297 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}" />
+    
+</head>
+<body>
+    <script type="text/javascript">
+    var map;
+    let infowindow;
+    var HighS=0,RelS=0,GenS=0,NotS=0,NoR=0
+    var circles=[];
+    const citymap = {
+      MidMel: {
+        name: "Mid Melbourne",
+        total: 25419,
+        percent: 14.5,
+        radius: 20000,
+        functionN : 'showMid',
+        center: { lat: -37.850187, lng: 145.119610 },
+      },
+      WestMel: {
+        name: "West Melbourne",
+        total: 499,
+        percent:25.1,
+        radius: 30000,
+        functionN : 'showWest',
+        center: { lat: -37.482805, lng: 144.789142 },
+      },
+      EastMel: {
+        name: "East Melbourne",
+        total: 4070,
+        percent:29.3,
+        radius: 21000,
+        functionN : 'showEast',
+        center: { lat: -38.219873, lng: 145.161986 },
+      },
+    };
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -37.8136, lng: 144.9631 },
+        zoom: 10,
+      });
+    
+      infoWindow = new google.maps.InfoWindow();
+      infoWindow.setContent("contentString");
+      infoWindow.setPosition(-37.773719015000005,144.986803921);
+
+       // Create the DIV to hold the control and call the CenterControl()
+      // constructor passing in this DIV.
+      const showTwitter = document.createElement("div");
+      CenterControl(showTwitter, map,"showTwitter");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(showTwitter);
+
+      const closeTwiiter = document.createElement("div");
+      CenterControl(closeTwiiter, map,"hideTwitter");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(closeTwiiter);
+
+
+      var coordinateSet = '{{content}}'
+      var user = JSON.parse('{{content | tojson | safe}}')
+      // alert(JSON.stringify(user[1]['geometry']['coordinates'][0][0][1], null, 4))
+
+      for(j=0; j<user.length;j++){
+        var coordinatesSet1=[];
+        for(i=0; i<user[j]['geometry']['coordinates'][0][0].length; i++){
+          coordinatesSet1.push({ lat: user[j]['geometry']['coordinates'][0][0][i][1], lng: user[j]['geometry']['coordinates'][0][0][i][0]})
+        }
+        var localSatisf=user[j]['properties']['life_satisfaction_pc_0_to_60_synth']
+        if(localSatisf>=0.18){
+          color="#FF0000"
+          HighS++
+        }
+        else if(localSatisf>=0.15){
+          color="#ff5e00"
+          RelS++
+        }
+        else if(localSatisf>=0.12){
+          color="#ffa200"
+          GenS++
+        }
+        else if(localSatisf>=0.09){
+          color="#ffd900"
+          NotS++
+        }
+        else{
+          color="#FFFF99"
+          NoR++
+        }
+        const testPolygon = new google.maps.Polygon({
+          id: user[j]['properties']['sa2_code16'],
+          name: user[j]['properties']['sa2_name16'],
+          lifeSatisfaction: user[j]['properties']['life_satisfaction_pc_0_to_60_synth'],
+          paths: coordinatesSet1,
+          strokeColor: "#FFFFFF",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: color,
+          fillOpacity: 0.8,
+        });
+        testPolygon.setMap(map);
+
+        testPolygon.addListener("click",(mapsMouseEvent) => {
+          if(testPolygon.lifeSatisfaction==null){
+            var satisf= "No Response"
+          }
+          else{
+            var satisf = testPolygon.lifeSatisfaction.toFixed(4)
+          }
+          // Close the current InfoWindow.
+          infoWindow.close();
+          // Create a new InfoWindow.
+          infoWindow = new google.maps.InfoWindow({
+            position: mapsMouseEvent.latLng,
+          });
+          infoWindow.setContent(
+            '<div class="infoWin" id="cookiesPopup">' +
+              '<h3>' + testPolygon.name + '</h3>' +
+              '<div><b> Life Satisfaction Percentage: </b></br>' +  satisf + '</br>' +
+                '<b>Clicked Location: </b></br>' + 
+                'lat: ' + mapsMouseEvent.latLng.lat().toFixed(6) + '</br>' +
+                'lng: ' + mapsMouseEvent.latLng.lng().toFixed(6) + '</br>' +
+              '</div>' +
+            '</div>' +
+            '</div>' 
+            // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+          );
+          infoWindow.open(map);
+        });
+        testPolygon.addListener("mouseover",mouseInToRegion)
+        testPolygon.addListener("mouseout",mouseOutOfRegion)
+      }
+
+      const legend = document.getElementById("legend");
+      var styles={
+        1:{range:">=0.18",color:"#FF0000",attitude:"High satisfied"},
+        2:{range:"0.18> & >=0.15",color:"#ff5e00",attitude:"Relatively satisfied"},
+        3:{range:"0.15> & >=0.12",color:"#ffa200",attitude:"Generally satisfied"},
+        4:{range:"0.12> & >=0.09",color:"#ffd900",attitude:"Not satisfied"},
+        5:{range:"null",color:"#FFFF99",attitude:"No response"}};
+      for (var style in styles) {
+        var type = styles[style]
+        var range = type.range;
+        var color = type.color;
+        var attitude = type.attitude
+        var div = document.createElement('div');
+        div.innerHTML = '<div class="legend1" style="background: ' + color + ' ">'+ attitude + '</div> ' + '<h3>' + range + '</h3>';
+        legend.appendChild(div);
+      }
+      var div = document.createElement('div');
+      legend.appendChild(div);
+      map.controls[google.maps.ControlPosition.TOP_RIGHT].push(legend);
+
+      const dataAnalysis = document.getElementById("dataAnalysis");
+      var buttons=[
+        '<button id="showAurin" class="analyBut" onclick="showAurin()">Show AURIN Chart</button>',
+        '<button id="showMid" class="analyBut" onclick="showMid()">Show Mid Chart</button>',
+        '<button id="showWest" class="analyBut" onclick="showWest()">Show West Chart</button>',
+        '<button id="showEast" class="analyBut" onclick="showEast()">Show East Chart</button>'
+      ]
+      for (i=0; i < buttons.length;i++){
+        var div = document.createElement('div');
+        div.innerHTML = buttons[i]
+        dataAnalysis.appendChild(div);
+      }
+      map.controls[google.maps.ControlPosition.LEFT_CENTER].push(dataAnalysis);
+
+      for (const city in citymap) {
+        // Add the circle for this city to the map.
+        const cityCircle = new google.maps.Circle({
+          name: citymap[city].name,
+          total: citymap[city].total,
+          percent: citymap[city].percent,
+          functionN: citymap[city].functionN,
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FF0000",
+          fillOpacity: 0.35,
+          map,
+          center: citymap[city].center,
+          radius: citymap[city].radius
+        });
+
+        cityCircle.addListener("mouseover",mouseInToCircle)
+        cityCircle.addListener("mouseout",mouseOutOfCircle)
+
+        cityCircle.addListener("click",(mapsMouseEvent) => {
+          // Close the current InfoWindow.
+          infoWindow.close();
+          // Create a new InfoWindow.
+          infoWindow = new google.maps.InfoWindow({
+            position: mapsMouseEvent.latLng,
+          });
+          infoWindow.setContent(
+            '<div class="infoWin" id="cookiesPopup">' +
+              '<h3>' + cityCircle.name + '</h3>' +
+              '<div><b> Twitter Data Analysis: </b></br>' +  
+                'Total Tweets: '+ cityCircle.total + '</br>' +
+                // 'Percent: '+ cityCircle.percent + '</br>' +
+                '<b>Center Location: </b></br>' + 
+                'lat: ' + cityCircle.center.lat() + '</br>' +
+                'lng: ' + cityCircle.center.lng() + '</br>' +
+                'Radius: ' + cityCircle.radius/1000 + 'km</br>' +
+              '</div>' +
+              '<button id=" '+ cityCircle.functionN +'" class="analyBut" onclick="'+ cityCircle.functionN +'()">View Details</button>'+
+            '</div>' 
+            // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+          );
+          infoWindow.open(map);
+        });
+        cityCircle.setMap(null)
+        circles.push(cityCircle)
+      }
+    }
+
+        function isInfoWindowOpen(infoWindow){
+          var map = infoWindow.getMap();
+          return (map !== null && typeof map !== "undefined");
+        }
+
+
+        function mouseInToRegion(){
+          this.setOptions({fillOpacity: 0.3})
+
+        }
+        function mouseOutOfRegion(){
+          this.setOptions({fillOpacity: 0.8})
+        }
+
+        function mouseInToCircle(){
+          this.setOptions({fillOpacity: 0.65})
+        }
+
+        function mouseOutOfCircle(){
+          this.setOptions({fillOpacity: 0.35})
+        }
+
+        function showTwitter(){
+          for(var i in circles){
+            circles[i].setMap(map)
+          }
+        }
+        function hideTwitter(){
+          for(var i in circles){
+            circles[i].setMap(null)
+          }
+        }
+
+        function CenterControl(controlDiv, map,title) {
+          if(title=="hideTwitter"){
+            marginL="20px"
+            UItitle="Click to hide twitter data"
+          }
+          else{
+            marginL=""
+            UItitle="Click to show twitter data"
+          }
+          // Set CSS for the control border.
+          const controlUI = document.createElement("div");
+          controlUI.style.backgroundColor = "#fff";
+          controlUI.style.border = "2px solid #fff";
+          controlUI.style.borderRadius = "3px";
+          controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+          controlUI.style.cursor = "pointer";
+          controlUI.style.marginTop = "8px";
+          controlUI.style.marginBottom = "22px";
+          controlUI.style.marginLeft = marginL;
+          controlUI.style.textAlign = "center";
+          controlUI.title = UItitle;
+          controlDiv.appendChild(controlUI);
+          // Set CSS for the control interior.
+          const controlText = document.createElement("div");
+          controlText.style.color = "rgb(25,25,25)";
+          controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+          controlText.style.fontSize = "16px";
+          controlText.style.lineHeight = "38px";
+          controlText.style.paddingLeft = "5px";
+          controlText.style.paddingRight = "5px";
+          controlText.innerHTML = title;
+
+          controlUI.appendChild(controlText);
+          // Setup the click event listeners
+          controlUI.addEventListener("click", () => {
+            if(title=="hideTwitter"){
+              hideTwitter();
+            }
+            else{
+              showTwitter();
+            }
+          });
+        }
+
+    </script>
+
+    <script>
+        function CloseAnalysis(){
+          document.getElementById("columnChartContainer").style.visibility='hidden'
+          document.getElementById("pieChartContainer").style.visibility='hidden'
+          document.getElementById("firstContainer").style.visibility='hidden'
+          document.getElementById("secondContainer").style.visibility='hidden'
+          document.getElementById("thirdContainer").style.visibility='hidden'
+          document.getElementById("forthContainer").style.visibility='hidden'
+          document.getElementById("AurinData").style.visibility='hidden'
+          
+        }
+        function showAurin(){
+          document.getElementById("firstContainer").style.visibility='hidden'
+          document.getElementById("secondContainer").style.visibility='hidden'
+          document.getElementById("thirdContainer").style.visibility='hidden'
+          document.getElementById("forthContainer").style.visibility='hidden'
+          document.getElementById("header").innerText='AURIN Data'
+          var chart = new CanvasJS.Chart("columnChartContainer", {
+            animationEnabled: true,
+            theme: "light2", // "light1", "light2", "dark1", "dark2"
+            title:{
+              text: "Greater Melbourne Life Satisfaction Research"
+            },
+            axisY: {
+              title: "Number of regions"
+            },
+            data: [{        
+              type: "column",  
+              showInLegend: true, 
+              legendMarkerColor: "grey",
+              legendText: " ",
+              dataPoints: [      
+                { y: HighS, label: "High satisfied" },
+                { y: RelS,  label: "Relatively satisfied" },
+                { y: GenS,  label: "Generally satisfied" },
+                { y: NotS,  label: "Not satisfied" },
+                { y: NoR,  label: "No response" },
+              ]
+            }]
+          });
+          chart.render();
+          var totalNum=HighS+RelS+GenS+NotS+NoR
+          var chart = new CanvasJS.Chart("pieChartContainer", {
+            animationEnabled: true,
+            title: {
+              text: "Greater Melbourne Life Satisfaction Research"
+            },
+            data: [{
+              type: "pie",
+              startAngle: 240,
+              yValueFormatString: "##0.00\"%\"",
+              indexLabel: "{label} {y}",
+              dataPoints: [
+                {y: HighS/totalNum*100, label: "High satisfied"},
+                {y: RelS/totalNum*100, label: "Relatively satisfied"},
+                {y: GenS/totalNum*100, label: "Generally satisfied"},
+                {y: NotS/totalNum*100, label: "Not satisfied"},
+                {y: NoR/totalNum*100, label: "No response"}
+              ]
+            }]
+          });
+          chart.render();
+
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("columnChartContainer").style.visibility='visible'
+          document.getElementById("pieChartContainer").style.visibility='visible'
+        }
+        function showMid(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='Mid Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/MidCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/midWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/midTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/midTimeScore.png') }}";
+        }
+        function showWest(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='West Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/WestCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/westWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/westTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/westTimeScore.png') }}";
+        }
+        function showEast(){
+          document.getElementById("AurinData").style.visibility='visible'
+          document.getElementById("firstContainer").style.visibility='visible'
+          document.getElementById("secondContainer").style.visibility='visible'
+          document.getElementById("thirdContainer").style.visibility='visible'
+          document.getElementById("forthContainer").style.visibility='visible'
+          document.getElementById("header").innerText='East Melbourne'
+          document.getElementById('firstImage').src="{{ url_for('static', filename='img/EastCityTweet.jpg') }}";
+          document.getElementById('secondImage').src="{{ url_for('static', filename='img/eastWord.png') }}";
+          document.getElementById('thirdImage').src="{{ url_for('static', filename='img/eastTextLength.png') }}";
+          document.getElementById('forthImage').src="{{ url_for('static', filename='img/eastTimeScore.png') }}";
+        }
+    </script>
+    <div id="map"></div>
+    <div id="legend"><h2>Life Satisfaction</h2><h2>Percentage</h2></div>
+
+    <div id="dataAnalysis"><h2 style="text-align: center;">Data Analysis</h2></div>
+
+    <div id="AurinData">
+      <h2 id="header" style="text-align: center; margin-top: 2px;"></h2>
+    <div id="columnChartContainer" ></div>
+    <div id="pieChartContainer" ></div>
+    <div id='firstContainer'><img id="firstImage"></div>
+    <div id='secondContainer'><img id="secondImage"></div>
+    <div id='thirdContainer'><img id="thirdImage"></div>
+    <div id='forthContainer'><img id="forthImage"></div>
+
+    <div class="close-container" onclick="CloseAnalysis()">
+      <div class="leftright"></div>
+      <div class="rightleft"></div>
+      <label class="close">close</label>
+    </div>
+
+    </div>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCYLF0UhsgCckFTn19-DRbT-vVozC0vrE&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
+</body>
+
+
+</html>

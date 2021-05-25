@@ -1,0 +1,91 @@
+---
+- name: Uninstall old versions of docker
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['docker', 'docker-engine', 'docker.io']
+    state: absent
+
+- name: Install dependencies
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['apt-transport-https', 'ca-certificates', 'curl', 'python-setuptools', 'software-properties-common']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Add Docker apt repository key
+  tags: 'docker'
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  register: get_apt_key
+  until: get_apt_key is not failed
+  retries: 5
+  delay: 5
+
+- name: Add Docker apt repository and update apt cache
+  tags: 'docker'
+  become: yes
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+    mode: '644'
+    update_cache: yes
+    state: present
+
+- name: Install docker
+  tags: 'docker'
+  become: yes
+  apt:
+    name: ['docker-ce']
+    state: latest
+    install_recommends: no
+    update_cache: yes
+
+- name: Install docker-compose
+  tags: 'docker'
+  become: yes
+  pip:
+    name: ['docker-compose']
+    state: latest
+
+- name: Checking folders
+  tags: 'docker'
+  become: yes
+  stat:
+    path: "/etc/systemd/system/docker.service.d"
+  register: directory_stats
+
+- name: Create a systemd drop-in directory for the docker service
+  tags: 'docker'
+  become: yes
+  file:
+    path: "/etc/systemd/system/docker.service.d"
+    recurse: yes
+    state: directory
+  when: directory_stats.stat.exists == false
+
+- name: Copy docker http config file
+  tags: always
+  become: yes
+  copy:
+    src: ./http-proxy.conf
+    dest: "/etc/systemd/system/docker.service.d/"
+    mode: 600
+
+- name: Flush changes
+  tags: 'docker'
+  become: yes
+  command: systemctl daemon-reload
+
+- name: Restart docker
+  tags: 'docker'
+  become: yes
+  command: systemctl restart docker
+
+- name: Verify thar the configuration has been loaded
+  tags: 'docker'
+  become: yes
+  command: systemctl show --property=Environment docker
