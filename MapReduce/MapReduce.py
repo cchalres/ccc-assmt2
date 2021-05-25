@@ -117,10 +117,11 @@ if __name__ == "__main__":
 
     #Here are the required import 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", help = "Enter the name of the view!", required = True)
+    parser.add_argument("-n", "--name", help = "Enter the name of the design document!", required = True)
     parser.add_argument("-s", "--server", help = "Enter the ip address of your Couchdb Server! Please INCLUDE USERNAME:PASSWORD and end with '/'!!!", required = True)
-    parser.add_argument("-p", "--purpose", help = "Enter your purpose, which contain: 'count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends'", required = True)
-    parser.add_argument("-d", "--database", help = "Enter your Databse's name!", required = True)
+    parser.add_argument("-p", "--purpose", help = "Enter your purpose! Please select from the provided list", 
+                        choices=['count', 'point_without_zero', 'point_with_zero', 'text', 'time', 'language', 'followers', 'friends'], required = True)
+    parser.add_argument("-d", "--database", help = "Enter your Database's name!", required = True)
     args = parser.parse_args()
 
     view_name = str(args.name) #View name of the design document
