@@ -9,7 +9,7 @@
 
   "Locations":
     {
-      "geo_range": "-37.482805,144.789142,21km"
+      "geo_range": "-37.482805,144.789142,30km"
     },
 
   "Database":
