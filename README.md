@@ -9,7 +9,7 @@ How to run:
  
 `cd COMP90024/ccc-assmt2/Ansible`   
 
-You coudl change the configuration files (/hosts_vars/instances.yaml) which include:  
+You could change the configuration files (/hosts_vars/instances.yaml) which include:  
 - number of instances
 - instance image
 - volumes size per instance etc.
