@@ -1,6 +1,8 @@
 # ccc-assmt2
 
 # Ansible
+
+How to run:
 1. Get your Openstack Password (openrc.sh) from the dashboard of MRC.
 2. Reset API password and copy the latest password. 
 3. Go to the ansible directory. 
