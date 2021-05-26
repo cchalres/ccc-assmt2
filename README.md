@@ -76,10 +76,6 @@ Step 3:
 
 Step 4:
 
-`sudo nginx -t`
-
-Step 5:
-
 `sudo systemctl restart nginx`
 
 Now the web server has been restarted and with running web application made by ourselves. And it could be seen by typing the IP address into broswer.
