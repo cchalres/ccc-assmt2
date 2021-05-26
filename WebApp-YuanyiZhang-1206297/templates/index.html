@@ -70,19 +70,24 @@
           coordinatesSet1.push({ lat: user[j]['geometry']['coordinates'][0][0][i][1], lng: user[j]['geometry']['coordinates'][0][0][i][0]})
         }
         var localSatisf=user[j]['properties']['life_satisfaction_pc_0_to_60_synth']
-        if(localSatisf>=0.18){
+        var localSatisf2=user[j]['properties']['_life_satisfaction_pc_70_synth']
+        var totalSatisf = 1-localSatisf - localSatisf2
+        if(totalSatisf==1){
+          totalSatisf=null
+        }
+        if(totalSatisf>=0.70){
           color="#FF0000"
           HighS++
         }
-        else if(localSatisf>=0.15){
+        else if(totalSatisf>=0.65){
           color="#ff5e00"
           RelS++
         }
-        else if(localSatisf>=0.12){
+        else if(totalSatisf>=0.60){
           color="#ffa200"
           GenS++
         }
-        else if(localSatisf>=0.09){
+        else if(totalSatisf>=0.55){
           color="#ffd900"
           NotS++
         }
@@ -93,7 +98,7 @@
         const testPolygon = new google.maps.Polygon({
           id: user[j]['properties']['sa2_code16'],
           name: user[j]['properties']['sa2_name16'],
-          lifeSatisfaction: user[j]['properties']['life_satisfaction_pc_0_to_60_synth'],
+          lifeSatisfaction: totalSatisf,
           paths: coordinatesSet1,
           strokeColor: "#FFFFFF",
           strokeOpacity: 0.8,
@@ -136,9 +141,9 @@
 
       const legend = document.getElementById("legend");
       var styles={
-        1:{range:">=0.18",color:"#FF0000",attitude:"High satisfied"},
-        2:{range:"0.18> & >=0.15",color:"#ff5e00",attitude:"Relatively satisfied"},
-        3:{range:"0.15> & >=0.12",color:"#ffa200",attitude:"Generally satisfied"},
+        1:{range:">=0.18",color:"#FF0000",attitude:"Highly satisfied"},
+        2:{range:"0.18> & >=0.15",color:"#ff5e00",attitude:"Generally satisfied"},
+        3:{range:"0.15> & >=0.12",color:"#ffa200",attitude:"Partially satisfied"},
         4:{range:"0.12> & >=0.09",color:"#ffd900",attitude:"Not satisfied"},
         5:{range:"null",color:"#FFFF99",attitude:"No response"}};
       for (var style in styles) {
@@ -328,9 +333,9 @@
               legendMarkerColor: "grey",
               legendText: " ",
               dataPoints: [      
-                { y: HighS, label: "High satisfied" },
-                { y: RelS,  label: "Relatively satisfied" },
-                { y: GenS,  label: "Generally satisfied" },
+                { y: HighS, label: "Highly satisfied" },
+                { y: RelS,  label: "Generally satisfied" },
+                { y: GenS,  label: "Partially satisfied" },
                 { y: NotS,  label: "Not satisfied" },
                 { y: NoR,  label: "No response" },
               ]
@@ -349,9 +354,9 @@
               yValueFormatString: "##0.00\"%\"",
               indexLabel: "{label} {y}",
               dataPoints: [
-                {y: HighS/totalNum*100, label: "High satisfied"},
-                {y: RelS/totalNum*100, label: "Relatively satisfied"},
-                {y: GenS/totalNum*100, label: "Generally satisfied"},
+                {y: HighS/totalNum*100, label: "Highly satisfied"},
+                {y: RelS/totalNum*100, label: "Generally satisfied"},
+                {y: GenS/totalNum*100, label: "Partially satisfied"},
                 {y: NotS/totalNum*100, label: "Not satisfied"},
                 {y: NoR/totalNum*100, label: "No response"}
               ]
